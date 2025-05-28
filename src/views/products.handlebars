@@ -1,0 +1,75 @@
+<h1>Productos</h1>
+
+<form method="GET" action="/products">
+  <label for="query">Filtrar (category:Electronics o status:true):</label>
+  <input type="text" id="query" name="query" value="{{query}}" />
+
+  <label for="sort">Ordenar por precio:</label>
+  <select name="sort" id="sort">
+    <option value="" {{#unless sort}}selected{{/unless}}>Sin ordenar</option>
+    <option value="asc" {{#if (eq sort "asc" )}}selected{{/if}}>Menor a mayor</option>
+    <option value="desc" {{#if (eq sort "desc" )}}selected{{/if}}>Mayor a menor</option>
+  </select>
+
+  <label for="limit">Productos por página:</label>
+  <select name="limit" id="limit">
+    <option value="5" {{#if (eq limit 5)}}selected{{/if}}>5</option>
+    <option value="10" {{#if (eq limit 10)}}selected{{/if}}>10</option>
+    <option value="20" {{#if (eq limit 20)}}selected{{/if}}>20</option>
+  </select>
+
+  <button type="submit">Aplicar</button>
+</form>
+
+<hr>
+
+<ul>
+  {{#each products}}
+  <li>
+    <strong>{{title}}</strong> - ${{price}}<br>
+    Categoría: {{category}}<br>
+    Status: {{#if status}}Activo{{else}}Inactivo{{/if}}<br>
+    <button onclick="addToCart('{{_id}}')">Agregar al carrito</button>
+  </li>
+  {{/each}}
+</ul>
+
+<hr>
+
+<div>
+  {{#if hasPrevPage}}
+  <a href="{{prevLink}}">⬅ Anterior</a>
+  {{/if}}
+
+  <span>Página {{page}} de {{totalPages}}</span>
+
+  {{#if hasNextPage}}
+  <a href="{{nextLink}}">Siguiente ➡</a>
+  {{/if}}
+</div>
+
+<script>
+  const cartId = '64f2bc12f2e1a928dcb86b21'; // Cambiá esto por el ID real del carrito del usuario
+
+  async function addToCart(productId) {
+    try {
+      const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: 1 })
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        alert('Producto agregado al carrito');
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error agregando al carrito:', error);
+      alert('Ocurrió un error');
+    }
+  }
+</script>
